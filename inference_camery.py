@@ -222,10 +222,10 @@ if __name__ == "__main__":
             img = cv2.resize(img, (320, 320))
 
             # type casting
-            img = np.float32(img)
+            #img = np.float32(img)
 
             # connect with old implementation
-            batch = np.array([img])
+            batch = np.array([img], dtype="float32")
             images = [frame_id]
             scales = [[1.0, 1.0]]
 
