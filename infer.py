@@ -181,6 +181,9 @@ def main(args):
     trt_infer = TensorRTInfer(args.engine, args.preprocessor)
     batcher = ImageBatcher(args.input, *trt_infer.input_spec(), preprocessor=args.preprocessor)
     for batch, images, scales in batcher.get_batch():
+        print(f"batch: {batch}")
+        print(f"images: {images}")
+        print(f"scales: {scales}")
         print("Processing Image {} / {}".format(batcher.image_index, batcher.num_images))
         t0 = datetime.datetime.now()
         detections = trt_infer.infer(batch, scales, args.nms_threshold)
