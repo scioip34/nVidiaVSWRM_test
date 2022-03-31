@@ -27,7 +27,7 @@ import pycuda.driver as cuda
 import pycuda.autoinit
 
 from image_batcher import ImageBatcher
-from visualize import visualize_detections
+from visualize import visualize_detections_live
 
 import cv2
 
@@ -229,6 +229,7 @@ if __name__ == "__main__":
             print(f"inf time: {(t1 - t0).total_seconds()}")
 
             # visualize detections
+            img = visualize_detections_live(img, detections[0], labels, min_score=min_score)
 
 
             cv2.imshow("CSI Camera", img)
