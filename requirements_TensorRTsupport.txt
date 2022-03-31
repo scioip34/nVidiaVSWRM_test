@@ -1,0 +1,13 @@
+numpy>=1.19.4
+pycuda>=2020.1
+Pillow==8.2.0
+tensorflow-model-optimization
+matplotlib
+lxml
+absl-py
+PyYAML
+tensorflow-addons
+tensorflow-hub
+neural-structured-learning
+Cython
+git+https://github.com/cocodataset/cocoapi.git#subdirectory=PythonAPI
