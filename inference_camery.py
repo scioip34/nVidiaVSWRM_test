@@ -216,7 +216,7 @@ if __name__ == "__main__":
         while cv2.getWindowProperty("CSI Camera", 0) >= 0:
             # capture
             ret_val, img = cap.read()
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             # resize
             img = cv2.resize(img, (320, 320))
