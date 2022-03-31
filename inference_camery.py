@@ -232,9 +232,9 @@ if __name__ == "__main__":
             print(f"inf time: {(t1 - t0).total_seconds()}")
 
             # visualize detections
-            img = visualize_detections_live(img, detections[0], labels, min_score=min_score)
+            img_annotated = visualize_detections_live(img, detections[0], labels, min_score=min_score)
 
-            cv2.imshow("CSI Camera", np.asarray(img))
+            cv2.imshow("CSI Camera", np.asarray(img_annotated))
             # This also acts as
             k = cv2.waitKey(1) & 0xFF
 
