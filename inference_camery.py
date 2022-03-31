@@ -31,32 +31,34 @@ from visualize import visualize_detections_live
 
 import cv2
 
+
 def gstreamer_pipeline(
-    capture_width=320,
-    capture_height=200,
-    display_width=320,
-    display_height=200,
-    framerate=20,
-    flip_method=0,
+        capture_width=320,
+        capture_height=200,
+        display_width=320,
+        display_height=200,
+        framerate=20,
+        flip_method=0,
 ):
     return (
-        "nvarguscamerasrc ! "
-        "video/x-raw(memory:NVMM), "
-        "width=(int)%d, height=(int)%d, "
-        "format=(string)NV12, framerate=(fraction)%d/1 ! "
-        "nvvidconv flip-method=%d ! "
-        "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
-        "videoconvert ! "
-        "video/x-raw, format=(string)BGR ! appsink"
-        % (
-            capture_width,
-            capture_height,
-            framerate,
-            flip_method,
-            display_width,
-            display_height,
-        )
+            "nvarguscamerasrc ! "
+            "video/x-raw(memory:NVMM), "
+            "width=(int)%d, height=(int)%d, "
+            "format=(string)NV12, framerate=(fraction)%d/1 ! "
+            "nvvidconv flip-method=%d ! "
+            "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
+            "videoconvert ! "
+            "video/x-raw, format=(string)BGR ! appsink"
+            % (
+                capture_width,
+                capture_height,
+                framerate,
+                flip_method,
+                display_width,
+                display_height,
+            )
     )
+
 
 class TensorRTInfer:
     """
@@ -194,6 +196,7 @@ class TensorRTInfer:
                     })
         return detections
 
+
 if __name__ == "__main__":
 
     min_score = 0.25
@@ -231,8 +234,7 @@ if __name__ == "__main__":
             # visualize detections
             img = visualize_detections_live(img, detections[0], labels, min_score=min_score)
 
-
-            cv2.imshow("CSI Camera", img)
+            cv2.imshow("CSI Camera", np.asarray(img))
             # This also acts as
             k = cv2.waitKey(1) & 0xFF
 
