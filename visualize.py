@@ -68,6 +68,7 @@ def visualize_detections(image_path, output_path, detections, labels=[], min_sco
 
 
 def visualize_detections_live(image, detections, labels=[], min_score=0):
+    image = Image.fromarray(image)  # .convert(mode='RGB')
     draw = ImageDraw.Draw(image)
     line_width = 2
     font = ImageFont.load_default()
