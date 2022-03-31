@@ -206,7 +206,8 @@ if __name__ == "__main__":
     print(gstreamer_pipeline(flip_method=2))
     cap = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
     if cap.isOpened():
-
+        window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_AUTOSIZE)
+        # Window
         # only works with batch_size 1 from here
         frame_id = 0
         while cv2.getWindowProperty("CSI Camera", 0) >= 0:
@@ -238,6 +239,8 @@ if __name__ == "__main__":
                 # ESC pressed
                 print("'q' was hit, closing...")
                 break
+
+            frame_id += 1
 
         print()
         print("Finished Processing")
