@@ -6,6 +6,7 @@
 # Drivers for the camera and OpenCV are included in the base image
 
 import cv2
+import os
 
 # gstreamer_pipeline returns a GStreamer pipeline for capturing from the CSI camera
 # Defaults to 1280x720 @ 60fps
@@ -14,10 +15,10 @@ import cv2
 
 
 def gstreamer_pipeline(
-    capture_width=1280,
-    capture_height=720,
-    display_width=1280,
-    display_height=720,
+    capture_width=320,
+    capture_height=200,
+    display_width=320,
+    display_height=200,
     framerate=20,
     flip_method=0,
 ):
@@ -48,14 +49,24 @@ def show_camera():
     if cap.isOpened():
         window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_AUTOSIZE)
         # Window
+        frame_id = 0
         while cv2.getWindowProperty("CSI Camera", 0) >= 0:
             ret_val, img = cap.read()
             cv2.imshow("CSI Camera", img)
             # This also acts as
-            keyCode = cv2.waitKey(30) & 0xFF
-            # Stop the program on the ESC key
-            if keyCode == 27:
+            k = cv2.waitKey(1) & 0xFF
+
+            if k == ord("q"):
+                # ESC pressed
+                print("'q' was hit, closing...")
                 break
+            elif k == ord("s"):
+                # s pressed
+                image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                img_name = f"VSWRM_img_{frame_id}.jpg"
+                cv2.imwrite(img_name, img)
+                frame_id += 1
+                print(f"{img_name} saved!")
         cap.release()
         cv2.destroyAllWindows()
     else:
