@@ -180,6 +180,7 @@ def main(args):
 
     trt_infer = TensorRTInfer(args.engine, args.preprocessor)
     batcher = ImageBatcher(args.input, *trt_infer.input_spec(), preprocessor=args.preprocessor)
+    print(f"Input spec: {trt_infer.input_spec()}")
     for batch, images, scales in batcher.get_batch():
         print(f"batch: {batch}")
         print(f"images: {images}")
