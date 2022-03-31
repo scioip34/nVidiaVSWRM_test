@@ -224,7 +224,7 @@ if __name__ == "__main__":
 
             # inference
             t0 = datetime.datetime.now()
-            detections = trt_infer.infer(batch, scales)
+            # detections = trt_infer.infer(batch, scales)
             t1 = datetime.datetime.now()
             print(f"inf time: {(t1 - t0).total_seconds()}")
 
