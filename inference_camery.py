@@ -199,7 +199,7 @@ class TensorRTInfer:
 
 if __name__ == "__main__":
 
-    min_score = 0.25
+    min_score = 0.01
     engine_path = "../floatinputmodel.trt"
     preprocessor = "fixed_shape_resizer"
     labels = ["VSWRM_bot"]
