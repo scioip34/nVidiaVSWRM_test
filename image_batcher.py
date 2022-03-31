@@ -149,6 +149,7 @@ class ImageBatcher:
             print("Preprocessing method {} not supported".format(self.preprocessor))
             sys.exit(1)
         if self.format == "NCHW":
+            print("TRANSPOSE")
             image = np.transpose(image, (2, 0, 1))
         return image, scale
 
