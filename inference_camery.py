@@ -221,6 +221,9 @@ if __name__ == "__main__":
             # resize
             img = cv2.resize(img, (320, 320))
 
+            # type casting
+            img = np.float32(img)
+
             # connect with old implementation
             batch = np.array([img])
             images = [frame_id]

@@ -182,7 +182,7 @@ def main(args):
     batcher = ImageBatcher(args.input, *trt_infer.input_spec(), preprocessor=args.preprocessor)
     print(f"Input spec: {trt_infer.input_spec()}")
     for batch, images, scales in batcher.get_batch():
-        print(f"batch: {batch}")
+        print(f"batch dtype: {batch.dtype}")
         print(f"images: {images}")
         print(f"scales: {scales}")
         print("Processing Image {} / {}".format(batcher.image_index, batcher.num_images))
