@@ -199,7 +199,7 @@ class TensorRTInfer:
 
 if __name__ == "__main__":
 
-    min_score = 0.01
+    min_score = 0.1
     engine_path = "../floatinputmodel.trt"
     preprocessor = "fixed_shape_resizer"
     labels = ["VSWRM_bot"]
@@ -216,6 +216,7 @@ if __name__ == "__main__":
         while cv2.getWindowProperty("CSI Camera", 0) >= 0:
             # capture
             ret_val, img = cap.read()
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             # resize
             img = cv2.resize(img, (320, 320))
