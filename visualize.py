@@ -94,6 +94,8 @@ def visualize_detections_live(image, detections, labels=[], min_score=0):
     return image
 
 def visualize_detections_live_triton(image, detections, scores, min_score=0):
+    scores = scores[0]
+    detections = detections[0]
     print("SCORES SHAPE:", scores.shape)
     print("DETECTIONS SHAPE:", detections.shape)
     image = Image.fromarray(image)  # .convert(mode='RGB')
