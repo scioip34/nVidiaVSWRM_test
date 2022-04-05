@@ -521,13 +521,18 @@ if __name__ == '__main__':
                 t2 = datetime.datetime.now()
                 print(f"ret time: {(t2 - t1).total_seconds()}")
                 print("Retrieved response with id: ", results.get_response().id)
-                img_annotated = visualize_detections_live_triton(img, results.as_numpy("detection_boxes"),
-                                                                 results.as_numpy("detection_scores"), min_score=0.25)
             except Exception as e:
                 results = None
                 print("exception")
-                img_annotated = img
 
+            # try:
+            if results is not None:
+                img_annotated = visualize_detections_live_triton(img, results.as_numpy("detection_boxes"), results.as_numpy("detection_scores"), min_score=0.25)
+            else:
+                img_annotated = img
+            # except Exception as e:
+            #     print(e)
+            #     img_annotated = img
             cv2.imshow("CSI Camera", np.asarray(img_annotated))
 
             k = cv2.waitKey(1) & 0xFF
