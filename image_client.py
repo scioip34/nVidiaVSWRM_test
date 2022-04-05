@@ -522,10 +522,14 @@ if __name__ == '__main__':
                 print(f"ret time: {(t2 - t1).total_seconds()}")
                 print("Retrieved response with id: ", results.get_response().id)
             except Exception as e:
+                results = None
                 print("exception")
 
             # try:
-            img_annotated = visualize_detections_live_triton(img, results.as_numpy("detection_boxes"), results.as_numpy("detection_scores"), min_score=0.25)
+            if results is not None:
+                img_annotated = visualize_detections_live_triton(img, results.as_numpy("detection_boxes"), results.as_numpy("detection_scores"), min_score=0.25)
+            else:
+                img_annotated = img
             # except Exception as e:
             #     print(e)
             #     img_annotated = img
