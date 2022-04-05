@@ -29,6 +29,7 @@ import argparse
 from functools import partial
 import os
 import sys
+import cv2
 
 from PIL import Image
 import numpy as np
@@ -53,6 +54,32 @@ class UserData:
     def __init__(self):
         self._completed_requests = queue.Queue()
 
+def gstreamer_pipeline(
+        capture_width=320,
+        capture_height=200,
+        display_width=320,
+        display_height=200,
+        framerate=20,
+        flip_method=0,
+):
+    return (
+            "nvarguscamerasrc ! "
+            "video/x-raw(memory:NVMM), "
+            "width=(int)%d, height=(int)%d, "
+            "format=(string)NV12, framerate=(fraction)%d/1 ! "
+            "nvvidconv flip-method=%d ! "
+            "video/x-raw, width=(int)%d, height=(int)%d, format=(string)BGRx ! "
+            "videoconvert ! "
+            "video/x-raw, format=(string)BGR ! appsink"
+            % (
+                capture_width,
+                capture_height,
+                framerate,
+                flip_method,
+                display_width,
+                display_height,
+            )
+    )
 
 # Callback function used for async_stream_infer()
 def completion_callback(user_data, result, error):
@@ -404,69 +431,85 @@ if __name__ == '__main__':
     if FLAGS.streaming:
         triton_client.start_stream(partial(completion_callback, user_data))
 
-    while not last_request:
-        input_filenames = []
-        repeated_image_data = []
+    print(gstreamer_pipeline(flip_method=2))
+    cap = cv2.VideoCapture(gstreamer_pipeline(flip_method=0), cv2.CAP_GSTREAMER)
+    if cap.isOpened():
+        window_handle = cv2.namedWindow("CSI Camera", cv2.WINDOW_AUTOSIZE)
+        # Window
+        # only works with batch_size 1 from here
+        frame_id = 0
+        while cv2.getWindowProperty("CSI Camera", 0) >= 0:
+            repeated_image_data = []
 
-        for idx in range(FLAGS.batch_size):
-            input_filenames.append(filenames[image_idx])
-            repeated_image_data.append(image_data[image_idx])
-            image_idx = (image_idx + 1) % len(image_data)
-            if image_idx == 0:
-                last_request = True
+            # for idx in range(FLAGS.batch_size):
+            #     repeated_image_data.append(image_data[image_idx])
+            #     image_idx = (image_idx + 1) % len(image_data)
+            #     if image_idx == 0:
+            #         last_request = True
+            #
+            # if max_batch_size > 0:
+            #     batched_image_data = np.stack(repeated_image_data, axis=0)
+            # else:
+            #     batched_image_data = repeated_image_data[0]
 
-        if max_batch_size > 0:
-            batched_image_data = np.stack(repeated_image_data, axis=0)
-        else:
-            batched_image_data = repeated_image_data[0]
+            ret_val, img = cap.read()
+            # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        # Send request
-        try:
-            for inputs, outputs, model_name, model_version in requestGenerator(
-                    batched_image_data, input_name, output_name, dtype, FLAGS):
-                sent_count += 1
-                if FLAGS.streaming:
-                    print(f"Sending request {sent_count}")
-                    triton_client.async_stream_infer(
-                        FLAGS.model_name,
-                        inputs,
-                        request_id=str(sent_count),
-                        model_version=FLAGS.model_version,
-                        outputs=outputs)
-                elif FLAGS.async_set:
-                    if FLAGS.protocol.lower() == "grpc":
-                        triton_client.async_infer(
+            # resize
+            img = cv2.resize(img, (320, 320))
+
+            # type casting
+            # img = np.float32(img)
+
+            # connect with old implementation
+            batched_image_data = np.array([img], dtype="float32")
+
+            # Send request
+            try:
+                for inputs, outputs, model_name, model_version in requestGenerator(
+                        batched_image_data, input_name, output_name, dtype, FLAGS):
+                    sent_count += 1
+                    if FLAGS.streaming:
+                        print(f"Sending request {sent_count}")
+                        triton_client.async_stream_infer(
                             FLAGS.model_name,
                             inputs,
-                            partial(completion_callback, user_data),
                             request_id=str(sent_count),
                             model_version=FLAGS.model_version,
                             outputs=outputs)
-                    else:
-                        async_requests.append(
+                    elif FLAGS.async_set:
+                        if FLAGS.protocol.lower() == "grpc":
                             triton_client.async_infer(
                                 FLAGS.model_name,
                                 inputs,
+                                partial(completion_callback, user_data),
                                 request_id=str(sent_count),
                                 model_version=FLAGS.model_version,
-                                outputs=outputs))
-                else:
-                    responses.append(
-                        triton_client.infer(FLAGS.model_name,
-                                            inputs,
-                                            request_id=str(sent_count),
-                                            model_version=FLAGS.model_version,
-                                            outputs=outputs))
+                                outputs=outputs)
+                        else:
+                            async_requests.append(
+                                triton_client.async_infer(
+                                    FLAGS.model_name,
+                                    inputs,
+                                    request_id=str(sent_count),
+                                    model_version=FLAGS.model_version,
+                                    outputs=outputs))
+                    else:
+                        responses.append(
+                            triton_client.infer(FLAGS.model_name,
+                                                inputs,
+                                                request_id=str(sent_count),
+                                                model_version=FLAGS.model_version,
+                                                outputs=outputs))
 
-        except InferenceServerException as e:
-            print("inference failed: " + str(e))
-            if FLAGS.streaming:
-                triton_client.stop_stream()
-            sys.exit(1)
+            except InferenceServerException as e:
+                print("inference failed: " + str(e))
+                if FLAGS.streaming:
+                    triton_client.stop_stream()
+                sys.exit(1)
 
-        (results, error) = user_data._completed_requests.get()
-        print("Retrieved response with id: ", results.get_response().id)
-        pprint(results.get_response())
+            (results, error) = user_data._completed_requests.get()
+            print("Retrieved response with id: ", results.get_response().id)
 
     if FLAGS.streaming:
         triton_client.stop_stream()
