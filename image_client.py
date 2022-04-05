@@ -40,6 +40,8 @@ import tritonclient.http as httpclient
 from tritonclient.utils import InferenceServerException
 from tritonclient.utils import triton_to_np_dtype
 
+from pprint import pprint
+
 if sys.version_info >= (3, 0):
     import queue
 else:
@@ -68,8 +70,8 @@ def parse_model(model_metadata, model_config):
     this client)
     """
     # Summarizing model
-    print(f"Model inputs: {model_metadata.inputs}")
-    print(f"Model outputs: {model_metadata.outputs}")
+    pprint(f"Model inputs: {model_metadata.inputs}")
+    pprint(f"Model outputs: {model_metadata.outputs}")
 
     if len(model_metadata.inputs) != 1:
         raise Exception("expecting 1 input, got {}".format(
