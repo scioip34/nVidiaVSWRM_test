@@ -511,6 +511,15 @@ if __name__ == '__main__':
             (results, error) = user_data._completed_requests.get()
             print("Retrieved response with id: ", results.get_response().id)
 
+            k = cv2.waitKey(1) & 0xFF
+            if k == ord("q"):
+                # ESC pressed
+                print("'q' was hit, closing...")
+                break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
     if FLAGS.streaming:
         triton_client.stop_stream()
 
