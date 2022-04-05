@@ -535,6 +535,8 @@ if __name__ == '__main__':
             #     print(e)
             #     img_annotated = img
             cv2.imshow("CSI Camera", np.asarray(img_annotated))
+            t3 = datetime.datetime.now()
+            print(f"show time: {(t3 - t2).total_seconds()}")
 
             k = cv2.waitKey(1) & 0xFF
             if k == ord("q"):
