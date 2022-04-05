@@ -525,6 +525,7 @@ if __name__ == '__main__':
             except Exception as e:
                 results = None
                 print("exception")
+                t2 = datetime.datetime.now()
 
             # try:
             if results is not None:
