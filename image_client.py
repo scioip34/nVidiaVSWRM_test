@@ -466,6 +466,7 @@ if __name__ == '__main__':
 
         (results, error) = user_data._completed_requests.get()
         print("Retrieved response with id: ", results.get_response().id)
+        pprint(results.get_response())
 
     if FLAGS.streaming:
         triton_client.stop_stream()
