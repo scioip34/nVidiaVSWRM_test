@@ -523,7 +523,7 @@ if __name__ == '__main__':
 
             t2 = datetime.datetime.now()
             print(f"ret time: {(t2 - t1).total_seconds()}")
-             print("Retrieved response with id: ", results.get_response().id)
+            print("Retrieved response with id: ", results.get_response().id)
 
             k = cv2.waitKey(1) & 0xFF
             if k == ord("q"):
