@@ -517,6 +517,7 @@ if __name__ == '__main__':
             print(f"inf time: {(t1 - t0).total_seconds()}")
             #print(responses[-1].get_response().id)
             try:
+                print("qsize", user_data._completed_requests.qsize())
                 (results, error) = user_data._completed_requests.get(block=False)
                 t2 = datetime.datetime.now()
                 print(f"ret time: {(t2 - t1).total_seconds()}")
