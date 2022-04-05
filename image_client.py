@@ -526,7 +526,8 @@ if __name__ == '__main__':
 
             try:
                 img_annotated = visualize_detections_live_triton(img, results.as_numpy("detection_boxes"), results.as_numpy("detection_scores"), min_score=0.25)
-            except:
+            except Exception as e:
+                print(e)
                 img_annotated = img
             cv2.imshow("CSI Camera", np.asarray(img_annotated))
 
