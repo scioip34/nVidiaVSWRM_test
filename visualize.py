@@ -106,7 +106,8 @@ def visualize_detections_live_triton(image, detections, scores, min_score=0):
     imH=320
     imW=320
     for i in range(len(detections)):
-        if (scores[i] > min_score) and (scores[i] <= 1.0):
+        score = scores[i]
+        if (score > min_score) and (score <= 1.0):
             # if scores[i] == np.max(scores):
             # Get bounding box coordinates and draw box
             # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
@@ -118,7 +119,6 @@ def visualize_detections_live_triton(image, detections, scores, min_score=0):
             color = "GoldenRod"
             draw.line([(xmin,ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin),
                        (xmin, ymin)], width=line_width, fill=color)
-            score = d['score']
             text = "{}: {}%".format(label, int(100 * score))
             if score < 0:
                 text = label
