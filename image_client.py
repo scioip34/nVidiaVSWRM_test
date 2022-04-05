@@ -425,10 +425,8 @@ if __name__ == '__main__':
             for inputs, outputs, model_name, model_version in requestGenerator(
                     batched_image_data, input_name, output_name, dtype, FLAGS):
                 sent_count += 1
-                print(type(inputs))
-                print(inputs[0].shape)
-                print(outputs)
                 if FLAGS.streaming:
+                    print(f"Sending request {sent_count}")
                     triton_client.async_stream_infer(
                         FLAGS.model_name,
                         inputs,
@@ -466,36 +464,39 @@ if __name__ == '__main__':
                 triton_client.stop_stream()
             sys.exit(1)
 
+        (results, error) = user_data._completed_requests.get()
+        print("Retrieved response with id: ", results.get_response().id)
+
     if FLAGS.streaming:
         triton_client.stop_stream()
 
-    if FLAGS.protocol.lower() == "grpc":
-        if FLAGS.streaming or FLAGS.async_set:
-            processed_count = 0
-            while processed_count < sent_count:
-                (results, error) = user_data._completed_requests.get()
-                processed_count += 1
-                if error is not None:
-                    print("inference failed: " + str(error))
-                    sys.exit(1)
-                responses.append(results)
-    else:
-        if FLAGS.async_set:
-            # Collect results from the ongoing async requests
-            # for HTTP Async requests.
-            for async_request in async_requests:
-                responses.append(async_request.get_result())
-
-    for response in responses:
-        # print(response)
-        if FLAGS.protocol.lower() == "grpc":
-            this_id = response.get_response().id
-        else:
-            this_id = response.get_response()["id"]
-        # print("Request {}, batch size {}".format(this_id, FLAGS.batch_size))
-        print(response.get_response().id)
-        # # postprocess(response, output_name, FLAGS.batch_size, max_batch_size > 0)
-        # print(response.as_numpy("detection_scores"))
-        # print(response.as_numpy("detection_boxes"))
+    # if FLAGS.protocol.lower() == "grpc":
+    #     if FLAGS.streaming or FLAGS.async_set:
+    #         processed_count = 0
+    #         while processed_count < sent_count:
+    #             (results, error) = user_data._completed_requests.get()
+    #             processed_count += 1
+    #             if error is not None:
+    #                 print("inference failed: " + str(error))
+    #                 sys.exit(1)
+    #             responses.append(results)
+    # else:
+    #     if FLAGS.async_set:
+    #         # Collect results from the ongoing async requests
+    #         # for HTTP Async requests.
+    #         for async_request in async_requests:
+    #             responses.append(async_request.get_result())
+    #
+    # for response in responses:
+    #     # print(response)
+    #     if FLAGS.protocol.lower() == "grpc":
+    #         this_id = response.get_response().id
+    #     else:
+    #         this_id = response.get_response()["id"]
+    #     # print("Request {}, batch size {}".format(this_id, FLAGS.batch_size))
+    #     print(response.get_response().id)
+    #     # # postprocess(response, output_name, FLAGS.batch_size, max_batch_size > 0)
+    #     # print(response.as_numpy("detection_scores"))
+    #     # print(response.as_numpy("detection_boxes"))
 
     print("PASS")
