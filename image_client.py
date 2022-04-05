@@ -26,6 +26,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import argparse
+import datetime
 from functools import partial
 import os
 import sys
@@ -458,12 +459,15 @@ if __name__ == '__main__':
             # resize
             img = cv2.resize(img, (320, 320))
 
+            cv2.imshow("CSI Camera", img)
+
             # type casting
             # img = np.float32(img)
 
             # connect with old implementation
             batched_image_data = np.array([img], dtype="float32")
 
+            t0 = datetime.datetime.now()
             # Send request
             try:
                 for inputs, outputs, model_name, model_version in requestGenerator(
@@ -509,9 +513,10 @@ if __name__ == '__main__':
                 sys.exit(1)
 
             (results, error) = user_data._completed_requests.get()
+            t1 = datetime.datetime.now()
+            print(f"inf time: {(t1 - t0).total_seconds()}")
             print("Retrieved response with id: ", results.get_response().id)
 
-            cv2.imshow("CSI Camera", img)
             k = cv2.waitKey(1) & 0xFF
             if k == ord("q"):
                 # ESC pressed
