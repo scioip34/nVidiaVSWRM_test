@@ -93,6 +93,39 @@ def visualize_detections_live(image, detections, labels=[], min_score=0):
             draw.text((text_left + margin, text_bottom - text_height - margin), text, fill='black', font=font)
     return image
 
+def visualize_detections_live_triton(image, detections, scores, min_score=0):
+    image = Image.fromarray(image)  # .convert(mode='RGB')
+    label = "robot"
+    draw = ImageDraw.Draw(image)
+    line_width = 2
+    font = ImageFont.load_default()
+    imH=320
+    imW=320
+    for i in range(len(detections)):
+        if (scores[i] > min_score) and (scores[i] <= 1.0):
+            # if scores[i] == np.max(scores):
+            # Get bounding box coordinates and draw box
+            # Interpreter can return coordinates that are outside of image dimensions, need to force them to be within image using max() and min()
+            ymin = int(max(1, (detections[i, 0] * imH)))
+            xmin = int(max(1, (detections[i, 1] * imW)))
+            ymax = int(min(imH, (detections[i, 2] * imH)))
+            xmax = int(min(imW, (detections[i, 3] * imW)))
+
+            color = "GoldenRod"
+            draw.line([(xmin,ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin),
+                       (xmin, ymin)], width=line_width, fill=color)
+            score = d['score']
+            text = "{}: {}%".format(label, int(100 * score))
+            if score < 0:
+                text = label
+            text_width, text_height = font.getsize(text)
+            text_bottom = max(text_height, ymin)
+            text_left = xmin
+            margin = np.ceil(0.05 * text_height)
+            draw.rectangle([(text_left, text_bottom - text_height - 2 * margin), (text_left + text_width, text_bottom)],
+                           fill=color)
+            draw.text((text_left + margin, text_bottom - text_height - margin), text, fill='black', font=font)
+    return image
 
 
 def concat_visualizations(images, names, colors, output_path):

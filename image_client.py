@@ -44,6 +44,8 @@ from tritonclient.utils import triton_to_np_dtype
 
 from pprint import pprint
 
+from visualize import visualize_detections_live_triton
+
 if sys.version_info >= (3, 0):
     import queue
 else:
@@ -460,8 +462,6 @@ if __name__ == '__main__':
             # resize
             img = cv2.resize(img, (320, 320))
 
-            cv2.imshow("CSI Camera", img)
-
             # type casting
             # img = np.float32(img)
 
@@ -521,6 +521,8 @@ if __name__ == '__main__':
                 t2 = datetime.datetime.now()
                 print(f"ret time: {(t2 - t1).total_seconds()}")
                 print("Retrieved response with id: ", results.get_response().id)
+                img_annotated = visualize_detections_live_triton(img, results.as_numpy("detection_boxes"), results.as_numpy("detection_scores"), min_score=0.25)
+                cv2.imshow("CSI Camera", np.asarray(img_annotated))
             except Exception as e:
                 print("exception")
 
