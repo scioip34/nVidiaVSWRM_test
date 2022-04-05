@@ -85,8 +85,8 @@ def gstreamer_pipeline(
 # Callback function used for async_stream_infer()
 def completion_callback(user_data, result, error):
     # passing error raise and handling out
-    print("BAKED RESPONSE: ", result.get_response().id)
-    #user_data._completed_requests.put((result, error))
+    #print("BAKED RESPONSE: ", result.get_response().id)
+    user_data._completed_requests.put((result, error))
 
 
 FLAGS = None
@@ -516,10 +516,14 @@ if __name__ == '__main__':
             t1 = datetime.datetime.now()
             print(f"inf time: {(t1 - t0).total_seconds()}")
             #print(responses[-1].get_response().id)
-            #(results, error) = user_data._completed_requests.get()
-            #t2 = datetime.datetime.now()
-            #print(f"ret time: {(t2 - t1).total_seconds()}")
-            # print("Retrieved response with id: ", results.get_response().id)
+            try:
+                (results, error) = user_data._completed_requests.get(block=False)
+            except Exception as e:
+                print("exception", e)
+
+            t2 = datetime.datetime.now()
+            print(f"ret time: {(t2 - t1).total_seconds()}")
+             print("Retrieved response with id: ", results.get_response().id)
 
             k = cv2.waitKey(1) & 0xFF
             if k == ord("q"):
