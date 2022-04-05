@@ -492,6 +492,8 @@ if __name__ == '__main__':
         else:
             this_id = response.get_response()["id"]
         print("Request {}, batch size {}".format(this_id, FLAGS.batch_size))
-        postprocess(response, output_name, FLAGS.batch_size, max_batch_size > 0)
+        print(response.as_numpy("detection_scores"))
+        print(response.as_numpy("detection_boxes"))
+        # postprocess(response, output_name, FLAGS.batch_size, max_batch_size > 0)
 
     print("PASS")
