@@ -222,8 +222,13 @@ def requestGenerator(batched_image_data, input_name, output_name, dtype, FLAGS):
     inputs = [client.InferInput(input_name, batched_image_data.shape, dtype)]
     inputs[0].set_data_from_numpy(batched_image_data)
 
+    # outputs = [
+    #     client.InferRequestedOutput(output_name, class_count=FLAGS.classes)
+    # ]
+
     outputs = [
-        client.InferRequestedOutput(output_name, class_count=FLAGS.classes)
+        client.InferRequestedOutput("detection_boxes", class_count=FLAGS.classes),
+        client.InferRequestedOutput("detection_scores", class_count=FLAGS.classes)
     ]
 
     yield inputs, outputs, FLAGS.model_name, FLAGS.model_version
@@ -421,6 +426,7 @@ if __name__ == '__main__':
                 sent_count += 1
                 print(type(inputs))
                 print(inputs[0].shape)
+                print(outputs)
                 if FLAGS.streaming:
                     triton_client.async_stream_infer(
                         FLAGS.model_name,
