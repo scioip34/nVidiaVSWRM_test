@@ -67,6 +67,10 @@ def parse_model(model_metadata, model_config):
     requirements for an image classification network (as expected by
     this client)
     """
+    # Summarizing model
+    print(f"Model inputs: {model_metadata.inputs}")
+    print(f"Model outputs: {model_metadata.outputs}")
+
     if len(model_metadata.inputs) != 1:
         raise Exception("expecting 1 input, got {}".format(
             len(model_metadata.inputs)))
@@ -326,6 +330,7 @@ if __name__ == '__main__':
     try:
         model_metadata = triton_client.get_model_metadata(
             model_name=FLAGS.model_name, model_version=FLAGS.model_version)
+        print("Model Metadata:", model_metadata)
     except InferenceServerException as e:
         print("failed to retrieve the metadata: " + str(e))
         sys.exit(1)
@@ -333,6 +338,7 @@ if __name__ == '__main__':
     try:
         model_config = triton_client.get_model_config(
             model_name=FLAGS.model_name, model_version=FLAGS.model_version)
+        print("Model Config:", model_config)
     except InferenceServerException as e:
         print("failed to retrieve the config: " + str(e))
         sys.exit(1)
@@ -345,6 +351,8 @@ if __name__ == '__main__':
 
     max_batch_size, input_name, output_name, c, h, w, format, dtype = parse_model(
         model_metadata, model_config)
+
+    print("model parameters ", max_batch_size, input_name, output_name, c, h, w, format, dtype)
 
     filenames = []
     if os.path.isdir(FLAGS.image_filename):
@@ -409,6 +417,8 @@ if __name__ == '__main__':
             for inputs, outputs, model_name, model_version in requestGenerator(
                     batched_image_data, input_name, output_name, dtype, FLAGS):
                 sent_count += 1
+                print(type(inputs))
+                print(inputs.shape)
                 if FLAGS.streaming:
                     triton_client.async_stream_infer(
                         FLAGS.model_name,
