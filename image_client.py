@@ -518,12 +518,11 @@ if __name__ == '__main__':
             #print(responses[-1].get_response().id)
             try:
                 (results, error) = user_data._completed_requests.get(block=False)
+                t2 = datetime.datetime.now()
+                print(f"ret time: {(t2 - t1).total_seconds()}")
+                print("Retrieved response with id: ", results.get_response().id)
             except Exception as e:
-                print("exception", e)
-
-            t2 = datetime.datetime.now()
-            print(f"ret time: {(t2 - t1).total_seconds()}")
-            print("Retrieved response with id: ", results.get_response().id)
+                print("exception")
 
             k = cv2.waitKey(1) & 0xFF
             if k == ord("q"):
