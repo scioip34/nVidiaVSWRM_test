@@ -227,8 +227,8 @@ def requestGenerator(batched_image_data, input_name, output_name, dtype, FLAGS):
     # ]
 
     outputs = [
-        client.InferRequestedOutput("detection_boxes", class_count=FLAGS.classes),
-        client.InferRequestedOutput("detection_scores", class_count=FLAGS.classes)
+        client.InferRequestedOutput("detection_boxes"), #, class_count=FLAGS.classes),
+        client.InferRequestedOutput("detection_scores") #, class_count=FLAGS.classes)
     ]
 
     yield inputs, outputs, FLAGS.model_name, FLAGS.model_version
