@@ -511,10 +511,11 @@ if __name__ == '__main__':
                 if FLAGS.streaming:
                     triton_client.stop_stream()
                 sys.exit(1)
-
-            (results, error) = user_data._completed_requests.get()
             t1 = datetime.datetime.now()
             print(f"inf time: {(t1 - t0).total_seconds()}")
+            (results, error) = user_data._completed_requests.get()
+            t2 = datetime.datetime.now()
+            print(f"ret time: {(t2 - t1).total_seconds()}")
             print("Retrieved response with id: ", results.get_response().id)
 
             k = cv2.waitKey(1) & 0xFF
