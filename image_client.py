@@ -418,7 +418,7 @@ if __name__ == '__main__':
                     batched_image_data, input_name, output_name, dtype, FLAGS):
                 sent_count += 1
                 print(type(inputs))
-                print(inputs.shape)
+                print(inputs[0].shape)
                 if FLAGS.streaming:
                     triton_client.async_stream_infer(
                         FLAGS.model_name,
