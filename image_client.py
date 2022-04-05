@@ -431,6 +431,7 @@ if __name__ == '__main__':
     async_requests = []
 
     sent_count = 0
+    rec_count = 0
 
     if FLAGS.streaming:
         triton_client.start_stream(partial(completion_callback, user_data))
@@ -471,41 +472,42 @@ if __name__ == '__main__':
             t0 = datetime.datetime.now()
             # Send request
             try:
-                for inputs, outputs, model_name, model_version in requestGenerator(
-                        batched_image_data, input_name, output_name, dtype, FLAGS):
-                    sent_count += 1
-                    if FLAGS.streaming:
-                        print(f"Sending request {sent_count}")
-                        triton_client.async_stream_infer(
-                            FLAGS.model_name,
-                            inputs,
-                            request_id=str(sent_count),
-                            model_version=FLAGS.model_version,
-                            outputs=outputs)
-                    elif FLAGS.async_set:
-                        if FLAGS.protocol.lower() == "grpc":
-                            triton_client.async_infer(
+                if sent_count <= rec_count:
+                    for inputs, outputs, model_name, model_version in requestGenerator(
+                            batched_image_data, input_name, output_name, dtype, FLAGS):
+                        sent_count += 1
+                        if FLAGS.streaming:
+                            print(f"Sending request {sent_count}")
+                            triton_client.async_stream_infer(
                                 FLAGS.model_name,
                                 inputs,
-                                partial(completion_callback, user_data),
                                 request_id=str(sent_count),
                                 model_version=FLAGS.model_version,
                                 outputs=outputs)
-                        else:
-                            async_requests.append(
+                        elif FLAGS.async_set:
+                            if FLAGS.protocol.lower() == "grpc":
                                 triton_client.async_infer(
                                     FLAGS.model_name,
                                     inputs,
+                                    partial(completion_callback, user_data),
                                     request_id=str(sent_count),
                                     model_version=FLAGS.model_version,
-                                    outputs=outputs))
-                    else:
-                        responses.append(
-                            triton_client.infer(FLAGS.model_name,
-                                                inputs,
-                                                request_id=str(sent_count),
-                                                model_version=FLAGS.model_version,
-                                                outputs=outputs))
+                                    outputs=outputs)
+                            else:
+                                async_requests.append(
+                                    triton_client.async_infer(
+                                        FLAGS.model_name,
+                                        inputs,
+                                        request_id=str(sent_count),
+                                        model_version=FLAGS.model_version,
+                                        outputs=outputs))
+                        else:
+                            responses.append(
+                                triton_client.infer(FLAGS.model_name,
+                                                    inputs,
+                                                    request_id=str(sent_count),
+                                                    model_version=FLAGS.model_version,
+                                                    outputs=outputs))
 
             except InferenceServerException as e:
                 print("inference failed: " + str(e))
@@ -522,6 +524,7 @@ if __name__ == '__main__':
                 t2 = datetime.datetime.now()
                 print(f"ret time: {(t2 - t1).total_seconds()}")
                 print("Retrieved response with id: ", results.get_response().id)
+                rec_count += 1
             except Exception as e:
                 results = None
                 print("exception")
