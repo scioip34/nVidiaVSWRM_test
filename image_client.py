@@ -511,6 +511,7 @@ if __name__ == '__main__':
             (results, error) = user_data._completed_requests.get()
             print("Retrieved response with id: ", results.get_response().id)
 
+            cv2.imshow("CSI Camera", np.asarray(img_annotated))
             k = cv2.waitKey(1) & 0xFF
             if k == ord("q"):
                 # ESC pressed
