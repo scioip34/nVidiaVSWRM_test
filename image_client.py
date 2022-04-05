@@ -455,7 +455,7 @@ if __name__ == '__main__':
             #     batched_image_data = np.stack(repeated_image_data, axis=0)
             # else:
             #     batched_image_data = repeated_image_data[0]
-
+            t_cap = datetime.datetime.now()
             ret_val, img = cap.read()
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -544,6 +544,10 @@ if __name__ == '__main__':
                 # ESC pressed
                 print("'q' was hit, closing...")
                 break
+
+            print(f"framerate: {1/(t3 - t_cap).total_seconds()}")
+
+
 
     cap.release()
     cv2.destroyAllWindows()
