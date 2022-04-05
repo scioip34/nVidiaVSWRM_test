@@ -368,6 +368,7 @@ if __name__ == '__main__':
             for f in os.listdir(FLAGS.image_filename)
             if os.path.isfile(os.path.join(FLAGS.image_filename, f))
         ]
+        filenames = [name for name in filenames if name.endswith(".jpg")]
     else:
         filenames = [
             FLAGS.image_filename,
@@ -486,15 +487,15 @@ if __name__ == '__main__':
                 responses.append(async_request.get_result())
 
     for response in responses:
-        print(response)
+        # print(response)
         if FLAGS.protocol.lower() == "grpc":
             this_id = response.get_response().id
         else:
             this_id = response.get_response()["id"]
-        print("Request {}, batch size {}".format(this_id, FLAGS.batch_size))
-        print(response.get_response())
-        # postprocess(response, output_name, FLAGS.batch_size, max_batch_size > 0)
-        print(response.as_numpy("detection_scores"))
-        print(response.as_numpy("detection_boxes"))
+        # print("Request {}, batch size {}".format(this_id, FLAGS.batch_size))
+        print(response.get_response().id)
+        # # postprocess(response, output_name, FLAGS.batch_size, max_batch_size > 0)
+        # print(response.as_numpy("detection_scores"))
+        # print(response.as_numpy("detection_boxes"))
 
     print("PASS")
