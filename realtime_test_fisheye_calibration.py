@@ -71,6 +71,9 @@ dist = calibration_data["dist"]
 rvecs = calibration_data["rvecs"]
 tvecs = calibration_data["tvecs"]
 
+# Obtain the new camera matrix and undistort the image
+newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+
 def show_camera():
     # To flip the image, modify the flip_method parameter (0 and 2 are the most common)
     print(gstreamer_pipeline(flip_method=2))
@@ -83,8 +86,6 @@ def show_camera():
             ret_val, img = cap.read()
             h, w = img.shape[:2]
 
-            # Obtain the new camera matrix and undistort the image
-            newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
             undistortedImg = cv2.undistort(img, mtx, dist, None, newCameraMtx)
 
             # Display the image
