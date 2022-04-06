@@ -9,7 +9,7 @@ import cv2
 import glob
 
 # Define the chess board rows and columns
-rows = 7
+rows = 9
 cols = 6
 
 # Set the termination criteria for the corner sub-pixel algorithm
