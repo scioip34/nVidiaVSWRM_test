@@ -107,7 +107,7 @@ def show_camera():
                 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
                 # Find the chess board corners
-                ret, corners = cv2.findChessboardCorners(gray, (rows, cols), None)
+                ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
 
                 if ret:
                     # Refine the corner position
