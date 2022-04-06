@@ -126,22 +126,27 @@ def show_camera():
                     cv2.imshow('CSI Camera', img)
 
             elif k == ord("p"):
-                print("finished collecting data, processing unwarping matrix.")
-                # Calibrate the camera and save the results
-                ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objectPointsArray, imgPointsArray, gray.shape[::-1],
-                                                                   None, None)
-                np.savez('calib_realtime.npz', mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
+                print("finished collecting data, closing CV first...")
+                break
 
-                # Print the camera calibration error
-                print("Saved calibration matrices, calculating calibration error...")
-                error = 0
-                for i in range(len(objectPointsArray)):
-                    imgPoints, _ = cv2.projectPoints(objectPointsArray[i], rvecs[i], tvecs[i], mtx, dist)
-                    error += cv2.norm(imgPointsArray[i], imgPoints, cv2.NORM_L2) / len(imgPoints)
-
-                print("Total error: ", error / len(objectPointsArray))
         cap.release()
         cv2.destroyAllWindows()
+
+        # Calibrate the camera and save the results
+        print("Calculating calibration matrices...")
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objectPointsArray, imgPointsArray, gray.shape[::-1],
+                                                           None, None)
+        np.savez('calib_realtime.npz', mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
+
+        # Print the camera calibration error
+        print("Saved calibration matrices, calculating calibration error...")
+        error = 0
+        for i in range(len(objectPointsArray)):
+            imgPoints, _ = cv2.projectPoints(objectPointsArray[i], rvecs[i], tvecs[i], mtx, dist)
+            error += cv2.norm(imgPointsArray[i], imgPoints, cv2.NORM_L2) / len(imgPoints)
+
+        print("Total error: ", error / len(objectPointsArray))
+
         print("Bye")
     else:
         print("Unable to open camera")
