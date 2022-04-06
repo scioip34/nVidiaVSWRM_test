@@ -540,7 +540,7 @@ if __name__ == '__main__':
                 resp_id = int(results.get_response().id)
                 print("Retrieved response with id: ", resp_id)
                 request_times[resp_id]["rec"] = datetime.datetime.now()
-                print(f"Framerate for response {resp_id} ", 1/(request_times[resp_id]["send"] - request_times[resp_id]["rec"] ).total_seconds())
+                print(f"Framerate for response {resp_id} ", 1/(request_times[resp_id]["rec"] - request_times[resp_id]["send"]).total_seconds())
                 rec_count += 1
             except Exception as e:
                 results = None
