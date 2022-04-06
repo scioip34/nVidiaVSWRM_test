@@ -79,25 +79,8 @@ def show_camera():
         while cv2.getWindowProperty("CSI Camera", 0) >= 0:
             ret_val, img = cap.read()
 
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-            # Find the chess board corners
-            ret, corners = cv2.findChessboardCorners(gray, (rows, cols), None)
-
-            if ret:
-                # Refine the corner position
-                corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-
-                # Add the object points and the image points to the arrays
-                objectPointsArray.append(objectPoints)
-                imgPointsArray.append(corners)
-
-                # Draw the corners on the image
-                cv2.drawChessboardCorners(img, (rows, cols), corners, ret)
-
             # Display the image
             cv2.imshow('CSI Camera', img)
-
 
             # This also acts as
             k = cv2.waitKey(1) & 0xFF
@@ -113,6 +96,26 @@ def show_camera():
                 cv2.imwrite(img_name, img)
                 frame_id += 1
                 print(f"{img_name} saved!")
+            elif k == ord("c"):
+                print("finding grid and saving image points")
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+                # Find the chess board corners
+                ret, corners = cv2.findChessboardCorners(gray, (rows, cols), None)
+
+                if ret:
+                    # Refine the corner position
+                    corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+
+                    # Add the object points and the image points to the arrays
+                    objectPointsArray.append(objectPoints)
+                    imgPointsArray.append(corners)
+
+                    # Draw the corners on the image
+                    cv2.drawChessboardCorners(img, (rows, cols), corners, ret)
+                    # Display the image
+                    cv2.imshow('CSI Camera', img)
+
             elif k == ord("p"):
                 print("finished collecting data, processing unwarping matrix.")
                 # Calibrate the camera and save the results
