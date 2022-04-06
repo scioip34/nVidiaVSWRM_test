@@ -91,7 +91,7 @@ def show_camera():
             ret_val, img = cap.read()
 
             #undistortedImg = cv2.undistort(img, mtx, dist, None, newCameraMtx)
-            undistortedImg = cv2.remap(img, mapx, mapy, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+            undistortedImg = cv2.remap(img, mapx, mapy, interpolation=cv2.INTER_LINEAR) # , borderMode=cv2.BORDER_CONSTANT)
 
             # Display the image
             cv2.imshow('CSI Camera', undistortedImg)
