@@ -536,7 +536,8 @@ if __name__ == '__main__':
                 rec_count += 1
             except Exception as e:
                 results = None
-                print("exception")
+                print(e)
+                break
                 t2 = datetime.datetime.now()
 
             # try:
