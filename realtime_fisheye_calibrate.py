@@ -64,7 +64,7 @@ objectPoints[:, :2] = np.mgrid[0:rows, 0:cols].T.reshape(-1, 2)
 objectPointsArray = []
 imgPointsArray = []
 rets = []
-if os.path.isfile():
+if os.path.isfile("./calib_points_realtime.npz"):
     print("Found calibration points from previous runs! Loading them!")
     calibration_points = np.load("./calib_points_realtime.npz")
     imgPointsArray = calibration_points["imgPointsArray"]
