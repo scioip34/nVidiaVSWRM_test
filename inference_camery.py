@@ -246,7 +246,7 @@ if __name__ == "__main__":
                 # ESC pressed
                 print("'q' was hit, closing...")
                 break
-
+            print("frame: ", frame_id)
             frame_id += 1
 
         cap.release()
