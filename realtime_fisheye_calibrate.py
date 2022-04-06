@@ -79,13 +79,14 @@ def show_camera():
         frame_id = 0
         while cv2.getWindowProperty("CSI Camera", 0) >= 0:
             ret_val, img = cap.read()
+            img_to_show = img.copy()
 
             if len(imgPointsArray) > 0:
                 for corn_i in range(len(imgPointsArray)):
-                    cv2.drawChessboardCorners(img, (rows, cols), imgPointsArray[corn_i], rets[corn_i])
+                    cv2.drawChessboardCorners(img_to_show, (rows, cols), imgPointsArray[corn_i], rets[corn_i])
 
             # Display the image
-            cv2.imshow('CSI Camera', img)
+            cv2.imshow('CSI Camera', img_to_show)
 
             # This also acts as
             k = cv2.waitKey(1) & 0xFF
@@ -112,12 +113,12 @@ def show_camera():
                     # Refine the corner position
                     corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
 
-                    print("Found corners: ", corners)
+                    print("Found grid corners...")
                     # Add the object points and the image points to the arrays
                     objectPointsArray.append(objectPoints)
                     imgPointsArray.append(corners)
                     rets.append(ret)
-                    print("Length of image points: ", len(imgPointsArray))
+                    print("Calibraiton pointset size: ", len(imgPointsArray))
 
                     # Draw the corners on the image
                     cv2.drawChessboardCorners(img, (rows, cols), corners, ret)
