@@ -451,6 +451,7 @@ if __name__ == '__main__':
         # Window
         # only works with batch_size 1 from here
         frame_id = 0
+        img_annotated = None
         while cv2.getWindowProperty("CSI Camera", 0) >= 0:
             repeated_image_data = []
 
@@ -543,7 +544,8 @@ if __name__ == '__main__':
             if results is not None:
                 img_annotated = visualize_detections_live_triton(img, results.as_numpy("detection_boxes"), results.as_numpy("detection_scores"), min_score=0.25)
             else:
-                img_annotated = img
+                if img_annotated is None:
+                    img_annotated = img
             # except Exception as e:
             #     print(e)
             #     img_annotated = img
