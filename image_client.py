@@ -267,7 +267,7 @@ def requestGenerator(batched_image_data, input_name, output_name, dtype, FLAGS):
 
 def get_latest(Q):
     """Getting latest element from queue"""
-    element = None
+    element = (None, None)
     while not Q.empty():
         element = Q.get(block=False)
     return element
@@ -529,7 +529,7 @@ if __name__ == '__main__':
             try:
                 print("qsize", user_data._completed_requests.qsize())
                 #(results, error) = user_data._completed_requests.get(block=False)
-                results = get_latest(user_data._completed_requests)
+                (results, error) = get_latest(user_data._completed_requests)
                 t2 = datetime.datetime.now()
                 if results is not None:
                     print(f"ret time: {(t2 - t1).total_seconds()}")
