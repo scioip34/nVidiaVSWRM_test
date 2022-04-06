@@ -76,6 +76,6 @@ undistortedImg = cv2.undistort(img, mtx, dist, None, newCameraMtx)
 # undistortedImg = undistortedImg[y:y + h, x:x + w]
 
 # Display the final result
-cv2.imshow('chess board', np.hstack((img, undistortedImg)))
+cv2.imshow('chess board', undistortedImg)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
