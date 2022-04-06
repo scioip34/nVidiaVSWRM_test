@@ -530,8 +530,8 @@ if __name__ == '__main__':
                 print("qsize", user_data._completed_requests.qsize())
                 #(results, error) = user_data._completed_requests.get(block=False)
                 results = get_latest(user_data._completed_requests)
+                t2 = datetime.datetime.now()
                 if results is not None:
-                    t2 = datetime.datetime.now()
                     print(f"ret time: {(t2 - t1).total_seconds()}")
                     print("Retrieved response with id: ", results.get_response().id)
                     rec_count += 1
