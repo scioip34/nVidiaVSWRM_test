@@ -106,8 +106,10 @@ def show_camera():
             elif k == ord("s"):
                 # s pressed
                 image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                img_name = f"undistVSWRM_img_{frame_id}.jpg"
+                img_name = f"distVSWRM_img_{frame_id}.jpg"
                 cv2.imwrite(img_name, img)
+                img_name = f"undistVSWRM_img_{frame_id}.jpg"
+                cv2.imwrite(undistortedImg, img)
                 frame_id += 1
                 print(f"{img_name} saved!")
             elif k == ord("e"):
