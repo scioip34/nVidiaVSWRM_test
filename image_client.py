@@ -265,6 +265,14 @@ def requestGenerator(batched_image_data, input_name, output_name, dtype, FLAGS):
     yield inputs, outputs, FLAGS.model_name, FLAGS.model_version
 
 
+def get_latest(Q):
+    """Getting latest element from queue"""
+    element = None
+    while not Q.empty():
+        element = Q.get(block=False)
+    return element
+
+
 def convert_http_metadata_config(_metadata, _config):
     _model_metadata = AttrDict(_metadata)
     _model_config = AttrDict(_config)
@@ -520,7 +528,8 @@ if __name__ == '__main__':
             #print(responses[-1].get_response().id)
             try:
                 print("qsize", user_data._completed_requests.qsize())
-                (results, error) = user_data._completed_requests.get(block=False)
+                #(results, error) = user_data._completed_requests.get(block=False)
+                results = get_latest(user_data._completed_requests)
                 t2 = datetime.datetime.now()
                 print(f"ret time: {(t2 - t1).total_seconds()}")
                 print("Retrieved response with id: ", results.get_response().id)
