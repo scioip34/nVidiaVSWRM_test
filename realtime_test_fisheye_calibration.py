@@ -75,8 +75,8 @@ tvecs = calibration_data["tvecs"]
 w = 1640
 h = 1232
 DIM = (w, h)
-# newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
-map1, map2 = cv2.fisheye.initUndistortRectifyMap(mtx, dist, np.eye(3), mtx, DIM, cv2.CV_16SC2)
+newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+mapx, mapy = cv2.initUndistortRectifyMap(mtx, dist, None, newCameraMtx, (w, h), 5)
 
 def show_camera():
     # To flip the image, modify the flip_method parameter (0 and 2 are the most common)
@@ -90,7 +90,7 @@ def show_camera():
             ret_val, img = cap.read()
 
             #undistortedImg = cv2.undistort(img, mtx, dist, None, newCameraMtx)
-            undistortedImg = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+            undistortedImg = cv2.remap(img, mapx, mapy, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
 
             # Display the image
             cv2.imshow('CSI Camera', undistortedImg)
