@@ -50,8 +50,8 @@ def gstreamer_pipeline(
     )
 
 # Define the chess board rows and columns
-rows = 6
-cols = 9
+rows = 5
+cols = 3
 
 # Set the termination criteria for the corner sub-pixel algorithm
 criteria = (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 30, 0.001)
