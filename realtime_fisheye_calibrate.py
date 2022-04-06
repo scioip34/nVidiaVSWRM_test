@@ -107,9 +107,11 @@ def show_camera():
                     # Refine the corner position
                     corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
 
+                    print("Found corners: ", corners)
                     # Add the object points and the image points to the arrays
                     objectPointsArray.append(objectPoints)
                     imgPointsArray.append(corners)
+                    print("Length of image points: ", len(imgPointsArray))
 
                     # Draw the corners on the image
                     cv2.drawChessboardCorners(img, (rows, cols), corners, ret)
