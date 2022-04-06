@@ -110,10 +110,10 @@ def show_camera():
                 cv2.imwrite(img_name, img)
                 frame_id += 1
                 print(f"{img_name} saved!")
-            elif k== ord("e"):
+            elif k == ord("e"):
                 print("Empty video buffer...")
                 while img is not None:
-                    _, img = cap.read()
+                    _, img = cap.grab()
                 print("Buffer emptied!")
         cap.release()
         cv2.destroyAllWindows()
