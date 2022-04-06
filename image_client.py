@@ -52,6 +52,8 @@ else:
     import Queue as queue
 
 
+request_times = {}
+
 class UserData:
 
     def __init__(self):
@@ -487,6 +489,8 @@ if __name__ == '__main__':
                         sent_count += 1
                         if FLAGS.streaming:
                             print(f"Sending request {sent_count}")
+                            request_times[sent_count] = {"send": datetime.datetime.now(),
+                                                         "rec": None}
                             triton_client.async_stream_infer(
                                 FLAGS.model_name,
                                 inputs,
@@ -533,7 +537,10 @@ if __name__ == '__main__':
                 #(results, error) = get_latest(user_data._completed_requests)
                 t2 = datetime.datetime.now()
                 print(f"ret time: {(t2 - t1).total_seconds()}")
-                print("Retrieved response with id: ", results.get_response().id)
+                resp_id = results.get_response().id
+                print("Retrieved response with id: ", )
+                request_times[resp_id]["rec"] = datetime.datetime.now()
+                print(f"Framerate for response {resp_id} ", 1/(request_times[resp_id]["send"] - request_times[resp_id]["rec"] ).total_seconds())
                 rec_count += 1
             except Exception as e:
                 results = None
