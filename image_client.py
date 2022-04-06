@@ -472,7 +472,7 @@ if __name__ == '__main__':
             t0 = datetime.datetime.now()
             # Send request
             try:
-                if sent_count <= rec_count:
+                if sent_count <= rec_count + 5:
                     for inputs, outputs, model_name, model_version in requestGenerator(
                             batched_image_data, input_name, output_name, dtype, FLAGS):
                         sent_count += 1
