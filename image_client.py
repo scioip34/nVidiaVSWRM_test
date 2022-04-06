@@ -528,13 +528,12 @@ if __name__ == '__main__':
             #print(responses[-1].get_response().id)
             try:
                 print("qsize", user_data._completed_requests.qsize())
-                #(results, error) = user_data._completed_requests.get(block=False)
-                (results, error) = get_latest(user_data._completed_requests)
+                (results, error) = user_data._completed_requests.get(block=False)
+                #(results, error) = get_latest(user_data._completed_requests)
                 t2 = datetime.datetime.now()
-                if results is not None:
-                    print(f"ret time: {(t2 - t1).total_seconds()}")
-                    print("Retrieved response with id: ", results.get_response().id)
-                    rec_count += 1
+                print(f"ret time: {(t2 - t1).total_seconds()}")
+                print("Retrieved response with id: ", results.get_response().id)
+                rec_count += 1
             except Exception as e:
                 results = None
                 print(e)
