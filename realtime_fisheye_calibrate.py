@@ -67,9 +67,9 @@ rets = []
 if os.path.isfile("./calib_points_realtime.npz"):
     print("Found calibration points from previous runs! Loading them!")
     calibration_points = np.load("./calib_points_realtime.npz")
-    imgPointsArray = calibration_points["imgPointsArray"].tolist()
-    objectPointsArray = calibration_points["objectPointsArray"].tolist()
-    rets = calibration_points["rets"].tolist()
+    imgPointsArray = list(calibration_points["imgPointsArray"])
+    objectPointsArray = list(calibration_points["objectPointsArray"])
+    rets = list(calibration_points["rets"])
 
 data_pattern = "./data/*.jpg"
 
