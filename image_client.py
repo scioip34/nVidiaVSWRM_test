@@ -529,18 +529,18 @@ if __name__ == '__main__':
                 sys.exit(1)
 
             t1 = datetime.datetime.now()
-            print(f"inf time: {(t1 - t0).total_seconds()}")
+            #print(f"inf time: {(t1 - t0).total_seconds()}")
             #print(responses[-1].get_response().id)
             try:
                 print("qsize", user_data._completed_requests.qsize())
                 (results, error) = user_data._completed_requests.get(block=False)
                 #(results, error) = get_latest(user_data._completed_requests)
                 t2 = datetime.datetime.now()
-                print(f"ret time: {(t2 - t1).total_seconds()}")
-                resp_id = results.get_response().id
+                #print(f"ret time: {(t2 - t1).total_seconds()}")
+                resp_id = int(results.get_response().id)
                 print("Retrieved response with id: ", resp_id)
-                request_times[int(resp_id)]["rec"] = datetime.datetime.now()
-                # print(f"Framerate for response {resp_id} ", 1/(request_times[resp_id]["send"] - request_times[resp_id]["rec"] ).total_seconds())
+                request_times[resp_id]["rec"] = datetime.datetime.now()
+                print(f"Framerate for response {resp_id} ", 1/(request_times[resp_id]["send"] - request_times[resp_id]["rec"] ).total_seconds())
                 rec_count += 1
             except Exception as e:
                 results = None
