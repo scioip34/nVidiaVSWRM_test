@@ -72,6 +72,8 @@ rvecs = calibration_data["rvecs"]
 tvecs = calibration_data["tvecs"]
 
 # Obtain the new camera matrix and undistort the image
+w = 1640
+h = 1232
 newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
 
 def show_camera():
