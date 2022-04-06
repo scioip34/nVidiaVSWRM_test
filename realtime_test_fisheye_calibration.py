@@ -109,7 +109,7 @@ def show_camera():
                 img_name = f"distVSWRM_img_{frame_id}.jpg"
                 cv2.imwrite(img_name, img)
                 img_name = f"undistVSWRM_img_{frame_id}.jpg"
-                cv2.imwrite(undistortedImg, img)
+                cv2.imwrite(img_name, undistortedImg)
                 frame_id += 1
                 print(f"{img_name} saved!")
             elif k == ord("e"):
