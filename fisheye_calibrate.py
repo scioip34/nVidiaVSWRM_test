@@ -9,8 +9,8 @@ import cv2
 import glob
 
 # Define the chess board rows and columns
-rows = 9
-cols = 6
+rows = 6
+cols = 9
 
 # Set the termination criteria for the corner sub-pixel algorithm
 criteria = (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS, 30, 0.001)
@@ -64,18 +64,19 @@ for i in range(len(objectPointsArray)):
 print("Total error: ", error / len(objectPointsArray))
 
 # Load one of the test images
-img = cv2.imread(glob.glob(data_pattern)[0])
-h, w = img.shape[:2]
+for i in range(10):
+    img = cv2.imread(glob.glob(data_pattern)[0])
+    h, w = img.shape[:2]
 
-# Obtain the new camera matrix and undistort the image
-newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
-undistortedImg = cv2.undistort(img, mtx, dist, None, newCameraMtx)
+    # Obtain the new camera matrix and undistort the image
+    newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+    undistortedImg = cv2.undistort(img, mtx, dist, None, newCameraMtx)
 
-# Crop the undistorted image
-# x, y, w, h = roi
-# undistortedImg = undistortedImg[y:y + h, x:x + w]
+    # Crop the undistorted image
+    # x, y, w, h = roi
+    # undistortedImg = undistortedImg[y:y + h, x:x + w]
 
-# Display the final result
-cv2.imshow('chess board', undistortedImg)
-cv2.waitKey(0)
+    # Display the final result
+    cv2.imshow('chess board', undistortedImg)
+    cv2.waitKey(0)
 cv2.destroyAllWindows()
