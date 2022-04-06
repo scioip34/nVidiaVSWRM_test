@@ -15,10 +15,10 @@ import os
 
 
 def gstreamer_pipeline(
-    capture_width=320,
-    capture_height=200,
-    display_width=320,
-    display_height=200,
+    capture_width=1280,
+    capture_height=720,
+    display_width=1280,
+    display_height=720,
     framerate=20,
     flip_method=0,
 ):
