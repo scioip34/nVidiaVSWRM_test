@@ -537,7 +537,6 @@ if __name__ == '__main__':
             except Exception as e:
                 results = None
                 print(e)
-                break
                 t2 = datetime.datetime.now()
 
             # try:
