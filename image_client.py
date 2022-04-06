@@ -538,8 +538,8 @@ if __name__ == '__main__':
                 t2 = datetime.datetime.now()
                 print(f"ret time: {(t2 - t1).total_seconds()}")
                 resp_id = results.get_response().id
-                print("Retrieved response with id: ", )
-                # request_times[resp_id]["rec"] = datetime.datetime.now()
+                print("Retrieved response with id: ", resp_id)
+                request_times[resp_id]["rec"] = datetime.datetime.now()
                 # print(f"Framerate for response {resp_id} ", 1/(request_times[resp_id]["send"] - request_times[resp_id]["rec"] ).total_seconds())
                 rec_count += 1
             except Exception as e:
