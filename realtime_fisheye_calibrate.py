@@ -64,6 +64,12 @@ objectPoints[:, :2] = np.mgrid[0:rows, 0:cols].T.reshape(-1, 2)
 objectPointsArray = []
 imgPointsArray = []
 rets = []
+if os.path.isfile():
+    print("Found calibration points from previous runs! Loading them!")
+    calibration_points = np.load("./calib_points_realtime.npz")
+    imgPointsArray = calibration_points["imgPointsArray"]
+    objectPointsArray = calibration_points["objectPointsArray"]
+    rets = calibration_points["rets"]
 
 data_pattern = "./data/*.jpg"
 
@@ -131,6 +137,10 @@ def show_camera():
 
         cap.release()
         cv2.destroyAllWindows()
+
+        # Saving Calibration points
+        print("saving calibration points...")
+        np.savez('calib_points_realtime.npz', imgPointsArray=imgPointsArray, objectPointsArray=objectPointsArray, rets=rets)
 
         # Calibrate the camera and save the results
         print("Calculating calibration matrices...")
