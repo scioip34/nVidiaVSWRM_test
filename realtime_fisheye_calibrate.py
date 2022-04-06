@@ -63,7 +63,7 @@ objectPoints[:, :2] = np.mgrid[0:rows, 0:cols].T.reshape(-1, 2)
 # Create the arrays to store the object points and the image points
 objectPointsArray = []
 imgPointsArray = []
-ret = False
+rets = []
 
 data_pattern = "./data/*.jpg"
 
@@ -81,8 +81,8 @@ def show_camera():
             ret_val, img = cap.read()
 
             if len(imgPointsArray) > 0:
-                if ret:
-                    cv2.drawChessboardCorners(img, (rows, cols), imgPointsArray[-1], ret)
+                for corn_i in range(len(imgPointsArray)):
+                    cv2.drawChessboardCorners(img, (rows, cols), imgPointsArray[corn_i], rets[corn_i])
 
             # Display the image
             cv2.imshow('CSI Camera', img)
@@ -116,6 +116,7 @@ def show_camera():
                     # Add the object points and the image points to the arrays
                     objectPointsArray.append(objectPoints)
                     imgPointsArray.append(corners)
+                    rets.append(ret)
                     print("Length of image points: ", len(imgPointsArray))
 
                     # Draw the corners on the image
