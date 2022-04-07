@@ -13,12 +13,12 @@ from contextlib import contextmanager
 
 class TimeoutException(Exception): pass
 
-def signal_handler(signum, frame):
-    raise TimeoutException("Timed out!")
-signal.signal(signal.SIGALRM, signal_handler)
-
 @contextmanager
 def time_limit(seconds):
+    def signal_handler(signum, frame):
+        raise TimeoutException("Timed out!")
+
+    signal.signal(signal.SIGALRM, signal_handler)
     signal.setitimer(signal.ITIMER_REAL, seconds)
     try:
         yield
@@ -116,27 +116,6 @@ def show_camera():
 
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            # Find the chess board corners
-            if frame_id > 5:
-                try:
-                    with time_limit(0.5):
-                        ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
-                except TimeoutException as e:
-                    ret = False
-                    print("Timed out!")
-
-                if ret:
-                    # Refine the corner position
-                    corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
-
-                    print("Found grid corners...")
-                    # Add the object points and the image points to the arrays
-                    objectPointsArray.append(objectPoints)
-                    imgPointsArray.append(corners)
-                    rets.append(ret)
-                    print("Calibraiton pointset size: ", len(imgPointsArray))
-
-
             if k == ord("q"):
                 # ESC pressed
                 print("'q' was hit, closing...")
@@ -158,7 +137,17 @@ def show_camera():
                 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
                 # Find the chess board corners
-                ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
+                # ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
+
+                try:
+                    with time_limit(1):
+                        ret, corners = cv2.findChessboardCorners(gray, (rows, cols),
+                                                                 cv2.CALIB_CB_ADAPTIVE_THRESH +
+                                                                 cv2.CALIB_CB_FAST_CHECK +
+                                                                 cv2.CALIB_CB_NORMALIZE_IMAGE)
+                except TimeoutException as e:
+                    ret = False
+                    print("Timed out!")
 
                 if ret:
                     # Refine the corner position
