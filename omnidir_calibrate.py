@@ -101,7 +101,7 @@ tvecs = [np.zeros((1, 1, 3), dtype=np.float32) for i in range(N_OK)]
 #         calibration_flags,
 #         (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
 #     )
-# calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC+cv2.fisheye.CALIB_CHECK_COND+cv2.fisheye.CALIB_FIX_SKEW
+calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC+cv2.fisheye.CALIB_CHECK_COND+cv2.fisheye.CALIB_FIX_SKEW
 # xi = np.zeros(1)
 # rms, _, _, _, _, _ = \
 #     cv2.omnidir.calibrate(
@@ -153,8 +153,10 @@ scaled_K = K * dim1[0] / DIM[0]  # The values of K is to scale with image dimens
 scaled_K[2][2] = 1.0  # Except that K[2][2] is always 1.0
 # This is how scaled_K, dim2 and balance are used to determine the final K used to un-distort image. OpenCV document
 # failed to make this clear!
-new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(scaled_K, D, dim2, np.eye(3), balance=balance)
-map1, map2 = cv2.fisheye.initUndistortRectifyMap(scaled_K, D, np.eye(3), new_K, dim3, cv2.CV_16SC2)
+new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(scaled_K, D, (int(dim3[0]/0.95), int(dim3[1]/0.95)), np.eye(3), balance=balance)
+#map1, map2 = cv2.fisheye.initUndistortRectifyMap(scaled_K, D, np.eye(3), new_K, dim3, cv2.CV_16SC2)
+print("dim2", (int(dim3[0]*1), int(dim3[1]*1)))
+map1, map2 = cv2.omnidir.initUndistortRectifyMap(scaled_K, D, xi, np.eye(3), new_K, (int(dim3[0]/0.95), int(dim3[1]/0.95)), cv2.CV_32FC1, 1)
 undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR)#, borderMode=cv2.BORDER_CONSTANT)
 
 data = {'dim1': dim1,
@@ -172,7 +174,12 @@ with open("fisheye_calibration_data.json", "w") as f:
     json.dump(data, f)
 
 cv2.imshow("original", img)
+# new_K = new_K = np.array([[8000/3.1415, 0, 0],
+#                [0, 500/3.1415, 0],
+#                [0, 0, 1]])
+#undistorted_img = cv2.omnidir.undistortImage(img, scaled_K, D, xi, cv2.omnidir.RECTIFY_PERSPECTIVE, new_K) #  @param flags Flags indicates the rectification type,  RECTIFY_PERSPECTIVE, RECTIFY_CYLINDRICAL, RECTIFY_LONGLATI and RECTIFY_STEREOGRAPHIC
 
+undistorted_img = cv2.resize(undistorted_img, (500, 500))
 cv2.imshow("undistorted", undistorted_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
