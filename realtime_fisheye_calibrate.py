@@ -8,6 +8,23 @@ import cv2
 import glob
 import os
 
+import signal
+from contextlib import contextmanager
+
+class TimeoutException(Exception): pass
+
+def signal_handler(signum, frame):
+    raise TimeoutException("Timed out!")
+signal.signal(signal.SIGALRM, signal_handler)
+
+@contextmanager
+def time_limit(seconds):
+    signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+
 # MIT License
 # Copyright (c) 2019 JetsonHacks
 # See license
@@ -97,10 +114,37 @@ def show_camera():
             # This also acts as
             k = cv2.waitKey(1) & 0xFF
 
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            # Find the chess board corners
+            try:
+                with time_limit(0.5):
+                    ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
+            except TimeoutException as e:
+                ret = False
+                print("Timed out!")
+
+            if ret:
+                # Refine the corner position
+                corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+
+                print("Found grid corners...")
+                # Add the object points and the image points to the arrays
+                objectPointsArray.append(objectPoints)
+                imgPointsArray.append(corners)
+                rets.append(ret)
+                print("Calibraiton pointset size: ", len(imgPointsArray))
+
+
             if k == ord("q"):
                 # ESC pressed
                 print("'q' was hit, closing...")
                 break
+            elif k == ord("l"):
+                # Saving Calibration points
+                print("saving calibration points...")
+                np.savez('calib_points_realtime.npz', imgPointsArray=imgPointsArray,
+                         objectPointsArray=objectPointsArray, rets=rets)
             elif k == ord("s"):
                 # s pressed
                 image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
