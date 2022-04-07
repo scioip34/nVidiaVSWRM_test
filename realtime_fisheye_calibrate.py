@@ -117,23 +117,24 @@ def show_camera():
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
             # Find the chess board corners
-            try:
-                with time_limit(0.5):
-                    ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
-            except TimeoutException as e:
-                ret = False
-                print("Timed out!")
+            if frame_id > 5:
+                try:
+                    with time_limit(0.5):
+                        ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
+                except TimeoutException as e:
+                    ret = False
+                    print("Timed out!")
 
-            if ret:
-                # Refine the corner position
-                corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
+                if ret:
+                    # Refine the corner position
+                    corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
 
-                print("Found grid corners...")
-                # Add the object points and the image points to the arrays
-                objectPointsArray.append(objectPoints)
-                imgPointsArray.append(corners)
-                rets.append(ret)
-                print("Calibraiton pointset size: ", len(imgPointsArray))
+                    print("Found grid corners...")
+                    # Add the object points and the image points to the arrays
+                    objectPointsArray.append(objectPoints)
+                    imgPointsArray.append(corners)
+                    rets.append(ret)
+                    print("Calibraiton pointset size: ", len(imgPointsArray))
 
 
             if k == ord("q"):
@@ -178,6 +179,8 @@ def show_camera():
             elif k == ord("p"):
                 print("finished collecting data, closing CV first...")
                 break
+
+            frame_id += 1
 
         cap.release()
         cv2.destroyAllWindows()
