@@ -140,7 +140,7 @@ def show_camera():
                 # ret, corners = cv2.findChessboardCorners(gray, (rows, cols), cv2.CALIB_CB_FAST_CHECK)
 
                 try:
-                    with time_limit(0.25):
+                    with time_limit(1):
                         ret, corners = cv2.findChessboardCorners(gray, (rows, cols),
                                                                  cv2.CALIB_CB_ADAPTIVE_THRESH +
                                                                  cv2.CALIB_CB_FAST_CHECK +
