@@ -34,35 +34,58 @@ objp[0, :, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 _img_shape = None
 objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane.
+pointsets = glob.glob('./data/calib_pointset_*.npz')
 images = glob.glob('./data/*.jpg')
-for fname in images:
-    print(f"Processing image: ", fname)
-    img = cv2.imread(fname)
-    if _img_shape == None:
-        _img_shape = img.shape[:2]
-    else:
-        assert _img_shape == img.shape[:2], "All images must share the same size."
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    # Find the chess board corners
-    print("Finding Checkerboard...")
-    try:
-        with time_limit(1):
-            ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD,
-                                                     cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
-    except TimeoutException as e:
-        ret = False
-        print("Timed out!")
+if len(pointsets) == 0:
+    for fname in images:
+        print(f"Processing image: ", fname)
+        img = cv2.imread(fname)
+        if _img_shape == None:
+            _img_shape = img.shape[:2]
+        else:
+            assert _img_shape == img.shape[:2], "All images must share the same size."
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # Find the chess board corners
+        print("Finding Checkerboard...")
+        try:
+            with time_limit(1):
+                ret, corners = cv2.findChessboardCorners(gray, CHECKERBOARD,
+                                                         cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE)
+        except TimeoutException as e:
+            ret = False
+            print("Timed out!")
 
-    # If found, add object points, image points (after refining them)
-    if ret == True:
-        # print("Found calibration points!")
-        objpoints.append(objp)
-        cv2.cornerSubPix(gray, corners, (3, 3), (-1, -1), subpix_criteria)
-        imgpoints.append(corners)
-    else:
-        print("Didn't find calibration points!")
+        # If found, add object points, image points (after refining them)
+        if ret == True:
+            # print("Found calibration points!")
+            print(objp.dtype)
+            objpoints.append(objp)
+            cv2.cornerSubPix(gray, corners, (3, 3), (-1, -1), subpix_criteria)
+            imgpoints.append(corners)
+        else:
+            print("Didn't find calibration points!")
+else:
+    print("Found previously exported pointsets, will load calibration points from these")
+    img = cv2.imread(images[0])
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _img_shape = img.shape[:2]
+    for pointset_path in pointsets:
+        print(f"Loading points from {pointset_path}")
+        calibration_points = np.load(pointset_path)
+        print(calibration_points["objectPointsArray"].dtype)
+        imgPointsArray = list(calibration_points["imgPointsArray"].astype(np.float32))
+        imgpoints.extend(imgPointsArray)
+        objectPointsArray = list(calibration_points["objectPointsArray"].astype(np.float32))
+        objpoints.extend(objectPointsArray)
+    newobjpoints = []
+    for objp in objpoints:
+        newobjpoints.append(np.expand_dims(objp, axis=0))
+    objpoints = newobjpoints
 
 N_OK = len(objpoints)
+print(len(objpoints))
+print(objpoints[0].shape)
+print(imgpoints[0].shape)
 K = np.zeros((3, 3))
 D = np.zeros((4, 1))
 rvecs = [np.zeros((1, 1, 3), dtype=np.float32) for i in range(N_OK)]
@@ -95,6 +118,7 @@ tvecs = [np.zeros((1, 1, 3), dtype=np.float32) for i in range(N_OK)]
 #         tvecs
 #     )
 
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 rms, K, xi, D, rvecs, tvecs, idx  =  cv2.omnidir.calibrate(
             objectPoints=objpoints,
             imagePoints=imgpoints,
@@ -103,7 +127,7 @@ rms, K, xi, D, rvecs, tvecs, idx  =  cv2.omnidir.calibrate(
             flags=cv2.omnidir.CALIB_USE_GUESS + cv2.omnidir.CALIB_FIX_SKEW + cv2.omnidir.CALIB_FIX_CENTER,
             criteria=subpix_criteria)
 
-print("Found " + str(N_OK) + " valid images for calibration")
+print("Found " + str(N_OK) + " valid data points for calibration")
 print("DIM=" + str(_img_shape[::-1]))
 print("K=np.array(" + str(K.tolist()) + ")")
 print("D=np.array(" + str(D.tolist()) + ")")
@@ -118,7 +142,7 @@ balance = 1
 dim2 = None
 dim3 = None
 
-img = cv2.imread(images[10])
+img = cv2.imread(images[3])
 dim1 = img.shape[:2][::-1]  # dim1 is the dimension of input image to un-distort
 assert dim1[0] / dim1[1] == DIM[0] / DIM[1], "Image to undistort needs to have same aspect ratio as the ones used in " \
                                              "calibration "
@@ -132,7 +156,7 @@ scaled_K[2][2] = 1.0  # Except that K[2][2] is always 1.0
 # failed to make this clear!
 new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(scaled_K, D, dim2, np.eye(3), balance=balance)
 map1, map2 = cv2.fisheye.initUndistortRectifyMap(scaled_K, D, np.eye(3), new_K, dim3, cv2.CV_16SC2)
-undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR)#, borderMode=cv2.BORDER_CONSTANT)
 
 data = {'dim1': dim1,
         'dim2': dim2,
@@ -147,6 +171,8 @@ import json
 
 with open("fisheye_calibration_data.json", "w") as f:
     json.dump(data, f)
+
+cv2.imshow("original", img)
 
 cv2.imshow("undistorted", undistorted_img)
 cv2.waitKey(0)
