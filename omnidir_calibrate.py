@@ -26,7 +26,7 @@ def time_limit(seconds):
         signal.setitimer(signal.ITIMER_REAL, 0)
 
 CHECKERBOARD = (6, 9)
-subpix_criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.1)
+subpix_criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30000, 0.001)
 calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC + cv2.fisheye.CALIB_FIX_SKEW
 objp = np.zeros((1, CHECKERBOARD[0] * CHECKERBOARD[1], 3), np.float32)
 objp[0, :, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
@@ -122,8 +122,8 @@ rms, K, xi, D, rvecs, tvecs, idx  =  cv2.omnidir.calibrate(
             objectPoints=objpoints,
             imagePoints=imgpoints,
             size=gray.shape[::-1],
-            K=None, xi=None, D=None,
-            flags=cv2.omnidir.CALIB_USE_GUESS + cv2.omnidir.CALIB_FIX_SKEW + cv2.omnidir.CALIB_FIX_CENTER,
+            K=None, xi=None, D=None, rvecs=rvecs, tvecs=tvecs,
+            flags=cv2.omnidir.CALIB_FIX_K1,#cv2.omnidir.CALIB_FIX_K1 + cv2.omnidir.CALIB_FIX_K2 + cv2.omnidir.CALIB_USE_GUESS + cv2.omnidir.CALIB_FIX_SKEW + cv2.omnidir.CALIB_FIX_CENTER + cv2.omnidir.CALIB_FIX_P2,
             criteria=subpix_criteria)
 
 print("Found " + str(N_OK) + " valid data points for calibration")
@@ -138,10 +138,11 @@ DIM = _img_shape[::-1]
 # D=np.array([[-0.006845095123421685, 0.0007987746751401334, 1.7327659142422208e-05, 0.00016330173727187834]])
 
 balance = 1
-dim2 = None
+
+dim2 = (2000, 1000)
 dim3 = None
 
-img = cv2.imread(images[3])
+img = cv2.imread(images[-10])
 dim1 = img.shape[:2][::-1]  # dim1 is the dimension of input image to un-distort
 assert dim1[0] / dim1[1] == DIM[0] / DIM[1], "Image to undistort needs to have same aspect ratio as the ones used in " \
                                              "calibration "
@@ -149,15 +150,15 @@ if not dim2:
     dim2 = dim1
 if not dim3:
     dim3 = dim1
-scaled_K = K * dim1[0] / DIM[0]  # The values of K is to scale with image dimension.
+scaled_K = K * dim2[0] / DIM[0]  # The values of K is to scale with image dimension.
 scaled_K[2][2] = 1.0  # Except that K[2][2] is always 1.0
 # This is how scaled_K, dim2 and balance are used to determine the final K used to un-distort image. OpenCV document
 # failed to make this clear!
-new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(scaled_K, D, (int(dim3[0]/0.95), int(dim3[1]/0.95)), np.eye(3), balance=balance)
+new_K = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(scaled_K, D, dim2, np.eye(3), balance=balance)
 #map1, map2 = cv2.fisheye.initUndistortRectifyMap(scaled_K, D, np.eye(3), new_K, dim3, cv2.CV_16SC2)
-print("dim2", (int(dim3[0]*1), int(dim3[1]*1)))
-map1, map2 = cv2.omnidir.initUndistortRectifyMap(scaled_K, D, xi, np.eye(3), new_K, (int(dim3[0]/0.95), int(dim3[1]/0.95)), cv2.CV_32FC1, 1)
-undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR)#, borderMode=cv2.BORDER_CONSTANT)
+# print("dim2", (int(dim3[0]*1), int(dim3[1]*1)))
+# map1, map2 = cv2.omnidir.initUndistortRectifyMap(scaled_K, D, xi, np.eye(3), new_K, dim2, cv2.CV_32FC1, 2)
+# undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
 
 data = {'dim1': dim1,
         'dim2': dim2,
@@ -167,19 +168,39 @@ data = {'dim1': dim1,
         'new_K': np.asarray(new_K).tolist(),
         'scaled_K': np.asarray(scaled_K).tolist(),
         'balance': balance}
-
+from pprint import pprint
 import json
+pprint(data)
 
 with open("fisheye_calibration_data.json", "w") as f:
     json.dump(data, f)
-
+cv2.namedWindow("original", cv2.WINDOW_NORMAL)
 cv2.imshow("original", img)
-# new_K = new_K = np.array([[8000/3.1415, 0, 0],
-#                [0, 500/3.1415, 0],
-#                [0, 0, 1]])
-#undistorted_img = cv2.omnidir.undistortImage(img, scaled_K, D, xi, cv2.omnidir.RECTIFY_PERSPECTIVE, new_K) #  @param flags Flags indicates the rectification type,  RECTIFY_PERSPECTIVE, RECTIFY_CYLINDRICAL, RECTIFY_LONGLATI and RECTIFY_STEREOGRAPHIC
+# new_K = np.array([[1000/3.1415, 0, 0],
+#                 [0, 250/3.1415,  0],
+#                 [0, 0, 1]])
 
-undistorted_img = cv2.resize(undistorted_img, (500, 500))
+# new_K = np.array([[2000/4, 0, 2000/2],
+#                 [0, 500/4, 500/2],
+#                 [0, 0, 1]])
+
+new_K = np.array([[(dim2[0]-400)/3.1415, -0.86, (dim2[0]-200)],
+          [0.0, (dim2[1])/3.1415, dim2[1]/2],
+          [0.0, 0.0, 1.0]])
+R = np.array([[1, 0, 0],
+              [0, 0, -1],
+              [0, 1, 0]], dtype=np.float32)
+#D = np.array([[0, 0.62983775417965, -0.0026918796324266934, 0.0111223958104562154]])
+#xi = np.array([[2.19908895]])
+
+map1, map2 = cv2.omnidir.initUndistortRectifyMap(K, D, xi, R, new_K, dim2, cv2.CV_32FC1, 2)
+undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
+
+#undistorted_img = cv2.omnidir.undistortImage(img, K, D, xi, cv2.omnidir.RECTIFY_CYLINDRICAL, Knew=new_K, R=R, new_size = dim2) #  @param flags Flags indicates the rectification type,  RECTIFY_PERSPECTIVE, RECTIFY_CYLINDRICAL, RECTIFY_LONGLATI and RECTIFY_STEREOGRAPHIC
+
+
+cv2.namedWindow("undistorted", cv2.WINDOW_NORMAL)
+#undistorted_img = cv2.resize(undistorted_img, (int(dim2[0]/3), int(dim2[1]/3)))
 cv2.imshow("undistorted", undistorted_img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
