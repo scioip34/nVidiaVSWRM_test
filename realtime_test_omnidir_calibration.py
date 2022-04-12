@@ -80,29 +80,33 @@ def gstreamer_pipeline(
 # newCameraMtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
 # mapx, mapy = cv2.initUndistortRectifyMap(mtx, dist, None, newCameraMtx, (w, h), 5)
 
-dim2 = (2000, 1000)
+# dim2 = (2000, 1000)
+#
+# K = np.array([[1293.910853909818, -0.7089112955623251, 851.4440016613135],
+#               [0.0, 1293.215575443015, 623.1688566855132],
+#               [0.0, 0.0, 1.0]])
+#
+# D = np.array([[0.0,
+#                0.6298377541803084,
+#                -0.0026918796324268733,
+#                0.0011223958104573642]])
+#
+# new_K = np.array([[(dim2[0]-400)/3.1415, -0.86, (dim2[0]-200)],
+#           [0.0, (dim2[1])/3.1415, dim2[1]/2],
+#           [0.0, 0.0, 1.0]])
+#
+# R = np.array([[1, 0, 0],
+#               [0, 0, -1],
+#               [0, 1, 0]], dtype=np.float32)
+#
+# xi = np.array([[2.1990889469537933]])
 
-K = np.array([[1293.910853909818, -0.7089112955623251, 851.4440016613135],
-              [0.0, 1293.215575443015, 623.1688566855132],
-              [0.0, 0.0, 1.0]])
+# print("Calculating maps...")
+# map1, map2 = cv2.omnidir.initUndistortRectifyMap(K, D, xi, R, new_K, dim2, cv2.CV_32FC1, cv2.omnidir.RECTIFY_CYLINDRICAL)
 
-D = np.array([[0.0,
-               0.6298377541803084,
-               -0.0026918796324268733,
-               0.0011223958104573642]])
-
-new_K = np.array([[(dim2[0]-400)/3.1415, -0.86, (dim2[0]-200)],
-          [0.0, (dim2[1])/3.1415, dim2[1]/2],
-          [0.0, 0.0, 1.0]])
-
-R = np.array([[1, 0, 0],
-              [0, 0, -1],
-              [0, 1, 0]], dtype=np.float32)
-
-xi = np.array([[2.1990889469537933]])
-
-print("Calculating maps...")
-map1, map2 = cv2.omnidir.initUndistortRectifyMap(K, D, xi, R, new_K, dim2, cv2.CV_32FC1, cv2.omnidir.RECTIFY_CYLINDRICAL)
+maps = np.load("maps.npz")
+map1 = maps['map1']
+map2 = maps['map2']
 
 def show_camera():
     # To flip the image, modify the flip_method parameter (0 and 2 are the most common)
