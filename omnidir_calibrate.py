@@ -165,6 +165,7 @@ data = {'dim1': dim1,
         'dim3': dim3,
         'K': np.asarray(K).tolist(),
         'D': np.asarray(D).tolist(),
+        'xi': np.asarray(xi).tolist(),
         'new_K': np.asarray(new_K).tolist(),
         'scaled_K': np.asarray(scaled_K).tolist(),
         'balance': balance}
