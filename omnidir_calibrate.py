@@ -195,6 +195,11 @@ R = np.array([[1, 0, 0],
 #xi = np.array([[2.19908895]])
 
 map1, map2 = cv2.omnidir.initUndistortRectifyMap(K, D, xi, R, new_K, dim2, cv2.CV_32FC1, 2)
+np.savez("maps.npz", map1=map1, map2=map2)
+
+maps = np.load("maps.npz")
+map1 = maps['map1']
+map2 = maps['map2']
 undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
 
 #undistorted_img = cv2.omnidir.undistortImage(img, K, D, xi, cv2.omnidir.RECTIFY_CYLINDRICAL, Knew=new_K, R=R, new_size = dim2) #  @param flags Flags indicates the rectification type,  RECTIFY_PERSPECTIVE, RECTIFY_CYLINDRICAL, RECTIFY_LONGLATI and RECTIFY_STEREOGRAPHIC
