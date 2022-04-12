@@ -108,6 +108,8 @@ maps = np.load("maps.npz")
 map1 = maps['map1']
 map2 = maps['map2']
 
+cv2.namedWindow("CSI Camera", cv2.WINDOW_NORMAL)
+
 def show_camera():
     # To flip the image, modify the flip_method parameter (0 and 2 are the most common)
     print(gstreamer_pipeline(flip_method=2))
