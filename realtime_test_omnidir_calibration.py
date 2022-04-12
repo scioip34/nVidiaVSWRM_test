@@ -129,28 +129,28 @@ def show_camera():
                 # Display the image
                 cv2.imshow('CSI Camera', undistortedImg)
 
-                # This also acts as
-                k = cv2.waitKey(1) & 0xFF
+            # This also acts as
+            k = cv2.waitKey(1) & 0xFF
 
-                if k == ord("q"):
-                    # ESC pressed
-                    print("'q' was hit, closing...")
-                    break
-                elif k == ord("s"):
-                    # s pressed
-                    image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                    img_name = f"distVSWRM_img_{frame_id}.jpg"
-                    cv2.imwrite(img_name, img)
-                    img_name = f"undistVSWRM_img_{frame_id}.jpg"
-                    cv2.imwrite(img_name, undistortedImg)
-                    frame_id += 1
-                    print(f"{img_name} saved!")
-                elif k == ord("e"):
-                    print("Empty video buffer...")
-                    not_empty = True
-                    while not_empty:
-                        not_empty = cap.grab()
-                    print("Buffer emptied!")
+            if k == ord("q"):
+                # ESC pressed
+                print("'q' was hit, closing...")
+                break
+            elif k == ord("s"):
+                # s pressed
+                image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                img_name = f"distVSWRM_img_{frame_id}.jpg"
+                cv2.imwrite(img_name, img)
+                img_name = f"undistVSWRM_img_{frame_id}.jpg"
+                cv2.imwrite(img_name, undistortedImg)
+                frame_id += 1
+                print(f"{img_name} saved!")
+            elif k == ord("e"):
+                print("Empty video buffer...")
+                not_empty = True
+                while not_empty:
+                    not_empty = cap.grab()
+                print("Buffer emptied!")
 
             frame_id += 1
 
